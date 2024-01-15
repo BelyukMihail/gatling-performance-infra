@@ -5,6 +5,8 @@ import org.influxdb.InfluxDB
 import io.gatling.core.Predef._
 import io.gatling.core.structure.ChainBuilder
 
+import java.time.LocalDateTime
+
 object DbClient {
   val url = "http://localhost:8653"
   val username = "admin"
@@ -20,6 +22,9 @@ object DbClient {
       .getOrElse("")
       .toLowerCase()
 
+  val buildNumber: Int =
+    PropertyConfigurator.getProperty("BUILD_NUMBER", "0").toInt
+
   val metricWriter = new WriteMetricToInfluxDB(simulationName)
 
   def writeMetricWriter(requestName: String): ChainBuilder = {
@@ -29,4 +34,9 @@ object DbClient {
       metricWriter.writeError(influxDB, requestName)
     }
   }
+
+  def buildInfoWriter(startTime:LocalDateTime) = {
+    metricWriter.writeBuildInfo(influxDB, buildNumber, startTime)
+  }
+
 }

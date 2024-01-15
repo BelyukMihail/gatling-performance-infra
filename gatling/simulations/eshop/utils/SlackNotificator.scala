@@ -91,7 +91,7 @@ object SlackNotificator {
         .body(
           StringBody(
             requestBody(
-              getProperty("JENKINS_ADMIN_LOGIN", "POKA_NE_ADMIN"),
+              getProperty("JENKINS_LOGIN", "POKA_NE_ADMIN"),
               startTime,
               endTime
             )

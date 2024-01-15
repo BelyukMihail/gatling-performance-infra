@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
+  "id": 2,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -67,7 +67,7 @@
               },
               {
                 "id": "custom.width",
-                "value": 50
+                "value": 60
               }
             ]
           },
@@ -79,7 +79,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 50
+                "value": 64
               }
             ]
           },
@@ -91,7 +91,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 50
+                "value": 62
               }
             ]
           },
@@ -103,7 +103,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 50
+                "value": 63
               }
             ]
           },
@@ -115,7 +115,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 55
+                "value": 71
               }
             ]
           },
@@ -127,7 +127,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 50
+                "value": 60
               }
             ]
           },
@@ -139,7 +139,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 50
+                "value": 67
               }
             ]
           },
@@ -151,7 +151,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 50
+                "value": 60
               }
             ]
           },
@@ -163,7 +163,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 50
+                "value": 62
               }
             ]
           },
@@ -175,7 +175,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 51
+                "value": 69
               }
             ]
           },
@@ -187,7 +187,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 70
+                "value": 87
               }
             ]
           },
@@ -199,7 +199,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 50
+                "value": 63
               }
             ]
           }
@@ -896,7 +896,7 @@
         ]
       },
       "gridPos": {
-        "h": 9,
+        "h": 8,
         "w": 24,
         "x": 0,
         "y": 16
@@ -1062,7 +1062,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 25
+        "y": 24
       },
       "id": 6,
       "options": {
@@ -1114,7 +1114,7 @@
       "type": "table"
     }
   ],
-  "refresh": "10s",
+  "refresh": "",
   "schemaVersion": 39,
   "tags": [],
   "templating": {
@@ -1149,7 +1149,7 @@
       {
         "allValue": "allRequests",
         "current": {
-          "selected": false,
+          "selected": true,
           "text": "allRequests",
           "value": "allRequests"
         },
@@ -1173,13 +1173,13 @@
     ]
   },
   "time": {
-    "from": "now-3h",
+    "from": "now-6h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Gatling Report Metrics",
   "uid": "gatling",
-  "version": 7,
+  "version": 5,
   "weekStart": ""
 }

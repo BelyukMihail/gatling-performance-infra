@@ -53,7 +53,7 @@
       <configuredLocalRules/>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>docker run --name gatling --net=host --rm --volumes-from=jenkins -e JENKINS_ADMIN_LOGIN=$JENKINS_ADMIN_LOGIN -e SIMULATION=$SIMULATION -e WORKSPACE=$WORKSPACE -e JAVA_OPTS=&quot;-DUSERS=$USERS -DRAMP_DURATION=$RAMP_DURATION -DTEST_DURATION=$TEST_DURATION&quot; eclipse-temurin:8-jdk
+      <command>docker run --name gatling --net=host --rm --volumes-from=jenkins -e JENKINS_LOGIN=$BUILD_USER_ID -e SIMULATION=$SIMULATION -e WORKSPACE=$WORKSPACE -e JAVA_OPTS=&quot;-DUSERS=$USERS -DRAMP_DURATION=$RAMP_DURATION -DTEST_DURATION=$TEST_DURATION -DBUILD_NUMBER=$BUILD_NUMBER&quot; eclipse-temurin:8-jdk
       </command>
       <configuredLocalRules/>
     </hudson.tasks.Shell>
@@ -114,5 +114,7 @@
       <enabled>true</enabled>
     </io.gatling.jenkins.GatlingPublisher>
   </publishers>
-  <buildWrappers/>
+  <buildWrappers>
+    <org.jenkinsci.plugins.builduser.BuildUser plugin="build-user-vars-plugin@1.9"/>
+  </buildWrappers>
 </project>

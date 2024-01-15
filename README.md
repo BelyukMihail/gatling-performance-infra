@@ -1,5 +1,8 @@
 <!--- 
-Copyright © 2023 Yevhen Levchenko ylevchenko@solvd.com
+Copyright © 2023 
+Yevhen Levchenko ylevchenko@solvd.com
+Sviatoslav Paseka spaseka@solvd.com
+Mihail Belyuk mbelyuk@solvd.com
 -->
 
 # Performance testing framework
@@ -60,8 +63,9 @@ Before project building, you need to place simulation files in named directory i
 
 ## Running scenario with GatlingBackendParam job
 
-To run Gatling demo script: 
-**Open GatlingBackendParam job -> Build with Parameters -> Set simulation file name (<<folder>>.<<filename.scala>>) -> Set build parameters  -> Build**
+To run Gatling demo script:
+
+**Open GatlingBackendParam job -> Build with Parameters -> Set simulation file name (<foldername.Filename>) -> Set build parameters  -> Build**
 
 This job will start Gatling docker container and execute defined Gatling load simulation.
 
@@ -73,25 +77,37 @@ Runtime metrics link is available in job description as well as post-run link wi
 
 ## Grafana
 
+You can login to Grafana with admin/admin and edit any dashboard.
+
 ### Available Gatling metrics
 
-**Gatling Report Metrics** dashboard has multiple rows with different metrics:
+**1. Gatling Report Metrics** dashboard has multiple rows with different metrics:
 - Table: Overall statistics for each request (Total requests count; OK and KO statuses count; Max / Min / Mean response time and percentiles; Std deviation). 
 - Graph: Responses Status over Active Users (Shows count of OK/KO responses as well as users count each second)
 - Graph: Requests Response Time (Shows changes in Min/Max/Mean response timings)
 - Table: Errors (List of requests error messages)
 
+Dashboard has "simulation" and "request" variables to choose which simulation metrics to show and which specific requests details.
+
+**2. Gatling Report Comparison** dashboard has pairs of rows and graphs with metrics to compare two separate builds:
+- Tables: Overall statistics for all requests or one chosen request stats (Total requests count; OK and KO statuses count; Max / Min / Mean response time and percentiles; Std deviation).
+- Graphs: Responses Status over Active Users (Shows count of OK/KO responses as well as users count each second)
+- Graphs: Requests Response Time (Shows changes in Min/Max/Mean response timings)
+
+You need to choose builds to compare with variables: *Recent Build* and *Previous Build*.
+
+**IMPORTANT:** you should only choose most resent build fist, and older build as previous.
+
+After you apply new time range by clicking ```Zoom to data``` button on first graph, all the data will be correctly shown.
+
+If second ("previous") build has longer duration than first ("recent"), you need to manually add time difference to dashboards' global time range, to see both graphs in full.
+
 ### Prometheus Metrics
-Real time host performance metrics should be available in **Docker monitoring with service selection** dashboard.
-Dashboard contains visualizations based on data from prometheus.
-You can login to Grafana with admin/admin and edit any dashboard.
+
+**Docker monitoring with service selection** dashboard shows real time host performance metrics.
+Dashboard contains visualizations based on data from Prometheus and cAdvisor. 
+On dashboard you can choose "service" variable for according container stats to be shown.
 
 ### Timerange
 
 All values in visualizations are calculated according to selected time range. Default timerange is last 5 min with 5 sec refresh. Timerange could be set in timepicker or selected on any graph.
-
-### Templating
-
-Graphs and series on dashboard are displayed dynamically according to variables selected:
-- On "Gatling Report Metrics" dashboard there "simulation" and "request" variable to choose which simulation metrics to show and which specific requests details.
-- On "Docker monitoring..." dashboard you can choose service (container) variable for its stats to show.

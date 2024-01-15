@@ -10,3 +10,4 @@ groovy-postbuild:latest
 antisamy-markup-formatter:latest
 ssh-slaves:latest
 gatling:latest
+build-user-vars-plugin:latest
