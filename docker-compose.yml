@@ -111,26 +111,46 @@ services:
   #      - "/:/host:ro"
   #      - "/var/run/docker.sock:/var/run/docker.sock"
   #    restart: unless-stopped
-## Uncomment to use DataDog monitoring agent. Need to add API Key to environment variable.  
-#  datadog:
-#    container_name: ddagent
-#    image: gcr.io/datadoghq/agent:latest
-#    pid: host
-#    privileged: true
-#    environment:
-#      - DD_API_KEY=<Edit_Key>
-#      - DD_SITE=datadoghq.eu
-#      - DD_LOGS_ENABLED=true
-#      - DD_APM_ENABLED=true
-#      - DD_APM_NON_LOCAL_TRAFFIC=true
-#      - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
-##      - DD_APM_RECEIVER_SOCKET=/opt/datadog/apm/inject/run/apm.socket
-#      - DD_DOGSTATSD_SOCKET=/opt/datadog/apm/inject/run/dsd.socket
-#    volumes:
-#      - /var/run/docker.sock:/var/run/docker.sock
-#      - /proc/:/host/proc/:ro
-#      - /sys/fs/cgroup:/host/sys/fs/cgroup:ro
-#      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+  ## Uncomment to use DataDog monitoring agent. Need to add API Key to environment variable.  
+  #  datadog:
+  #    container_name: ddagent
+  #    image: gcr.io/datadoghq/agent:latest
+  #    pid: host
+  #    privileged: true
+  #    environment:
+  #      - DD_API_KEY=<Edit_Key>
+  #      - DD_SITE=datadoghq.eu
+  #      - DD_LOGS_ENABLED=true
+  #      - DD_APM_ENABLED=true
+  #      - DD_APM_NON_LOCAL_TRAFFIC=true
+  #      - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
+  ##      - DD_APM_RECEIVER_SOCKET=/opt/datadog/apm/inject/run/apm.socket
+  #      - DD_DOGSTATSD_SOCKET=/opt/datadog/apm/inject/run/dsd.socket
+  #    volumes:
+  #      - /var/run/docker.sock:/var/run/docker.sock
+  #      - /proc/:/host/proc/:ro
+  #      - /sys/fs/cgroup:/host/sys/fs/cgroup:ro
+  #      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+  datadog:
+    container_name: datadog
+    image: gcr.io/datadoghq/agent:7
+    environment:
+      - DD_SITE=datadoghq.eu
+      - DD_API_KEY=37050083ce07bc89fcf12a3ff39acb44
+      - DD_USE_DOGSTATSD=true
+      - DD_DOGSTATSD_PORT=8125
+      - DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true
+    pid: "host"
+    ports:
+      - "8000:8125/udp"
+      - "8126:8126/tcp"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+    links:
+      - jenkins
+      - influxdb
   lighthouse:
     container_name: lighthouse
     build: ./lighthouse

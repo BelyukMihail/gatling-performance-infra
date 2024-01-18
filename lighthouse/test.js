@@ -6,7 +6,13 @@ import { PuppeteerScreenRecorder } from "puppeteer-screen-recorder";
 import { reportDir } from "./src/util/reporting.js";
 import { parseJsonIntoObj } from "./src/util/util.js";
 
+/**
+ * @type {import("lighthouse").UserFlow}
+ */
 export let flow
+/**
+ * @type {import("./src/page/main-page").MainPage}
+ */
 let mainPage
 const recorderOptions = parseJsonIntoObj(`${process.cwd()}/resources/video-recorder-options.json`)
 
@@ -31,7 +37,6 @@ describe('Audit pages', () => {
 
             let loginPage = await mainPage.clickLoginLink()
             assert(await loginPage.isPageOpened(), 'Open login page')
-
             await loginPage.navigate()
             await loginPage.startTimespan()
             await loginPage.enterUsername(`${process.env.USER_NAME}`)

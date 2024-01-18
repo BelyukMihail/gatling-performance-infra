@@ -35,13 +35,13 @@ async function writeMetricsToInfluxDb(aggregatedSessionResult) {
         onlyCategories.forEach(async category => {
             if (step.lhr.categories[category]) {
                 const { score } = step.lhr.categories[category]
-                await writeScores(category, modifiedUrl, score, gatherMode, process.env.FLOW_CONFIG)
+                await writeScores(category, modifiedUrl, score, gatherMode, process.env.PLATFORM)
             }
         })
         metrics.forEach(async metric => {
             if (step.lhr.audits[metric]) {
                 const { numericValue } = step.lhr.audits[metric]
-                await writeMetrics(metric, modifiedUrl, numericValue, gatherMode,process.env.FLOW_CONFIG)
+                await writeMetrics(metric, modifiedUrl, numericValue, gatherMode,process.env.PLATFORM)
             }
         })
     })
