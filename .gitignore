@@ -7,3 +7,7 @@
 /lighthouse/node_modules
 /lighthouse/report
 *.mp4
+*.cjs
+encryptor.js
+dd.js
+*.log

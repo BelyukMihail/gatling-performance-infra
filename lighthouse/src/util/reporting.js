@@ -5,6 +5,7 @@ import { sendHtmlReport, sendReportUrl } from './slack.js';
 import { flowConfig } from '../session/session.js';
 import { performanceMetrics as metrics } from './constant.js';
 import { compareReports } from './compare-reports.js';
+import { sendMetricToNewRelic } from './newrelic.js';
 
 const date = new Date().getTime()
 const allReportsDir = `${process.cwd()}/report`
@@ -15,7 +16,46 @@ export async function writeAggregatedMetrics(aggregatedSessionResult) {
     if (process.env.WRITE_TO_DB) {
         await writeMetricsToInfluxDb(aggregatedSessionResult)
     }
+    sendMetricsToNewRelic(aggregatedSessionResult)
 }
+
+async function sendMetricsToNewRelic(aggregatedSessionResult) {
+    const { onlyCategories } = flowConfig.config.settings
+    const { steps } = aggregatedSessionResult
+
+    await steps.forEach(async step => {
+        const { finalDisplayedUrl, gatherMode } = step.lhr
+        const modifiedUrl = finalDisplayedUrl.replace(`${process.env.BASE_URL}`, 'base_url/')
+        const scoreAttributes = { gatherMode: gatherMode, url: modifiedUrl, platform: process.env.PLATFORM }
+        const metricsAttributes = { gatherMode: gatherMode, url: modifiedUrl, platform: process.env.PLATFORM }
+
+        onlyCategories.forEach(async category => {
+            if (step.lhr.categories[category]) {
+                const { score } = step.lhr.categories[category]
+                sendMetricToNewRelic(category, score, scoreAttributes)
+            }
+        })
+        metrics.forEach(async metric => {
+            if (step.lhr.audits[metric]) {
+                const { numericValue } = step.lhr.audits[metric]
+                sendMetricToNewRelic(metric, numericValue, metricsAttributes)
+            }
+        })
+    })
+    // const { steps } = aggregatedSessionResult
+    // await steps.forEach(async step => {
+    //     const { finalDisplayedUrl } = step.lhr
+    //     const modifiedUrl = finalDisplayedUrl.replace(`${process.env.BASE_URL}`, 'base_url/')
+
+    //     metrics.forEach(async metric => {
+    //         if (step.lhr.audits[metric]) {
+    //             const { numericValue } = step.lhr.audits[metric]
+    //             sendMetricToNewRelic(metric, numericValue, { url: modifiedUrl})
+    //         }
+    //     })
+    // })
+}
+
 
 export async function generateTestReport(testResult) {
     if (process.env.CREATE_REPORT) {
@@ -41,7 +81,7 @@ async function writeMetricsToInfluxDb(aggregatedSessionResult) {
         metrics.forEach(async metric => {
             if (step.lhr.audits[metric]) {
                 const { numericValue } = step.lhr.audits[metric]
-                await writeMetrics(metric, modifiedUrl, numericValue, gatherMode,process.env.PLATFORM)
+                await writeMetrics(metric, modifiedUrl, numericValue, gatherMode, process.env.PLATFORM)
             }
         })
     })
@@ -65,15 +105,15 @@ async function generateSummaryReport(testResult) {
     await sendReportSummary(report)
 }
 
-async function generateReportForEachStep(result) {
-    const { steps } = result
-    await steps.forEach(async step => {
-        const stepReport = generateReport(step.lhr, reportType)
-        const { finalDisplayedUrl } = step.lhr
-        const reportName = finalDisplayedUrl.replace(/\//g, ".")
-        fs.writeFileSync(`${reportDir}/${reportName}.${reportType}`, stepReport)
-    })
-}
+// async function generateReportForEachStep(result) {
+//     const { steps } = result
+//     await steps.forEach(async step => {
+//         const stepReport = generateReport(step.lhr, reportType)
+//         const { finalDisplayedUrl } = step.lhr
+//         const reportName = finalDisplayedUrl.replace(/\//g, ".")
+//         fs.writeFileSync(`${reportDir}/${reportName}.${reportType}`, stepReport)
+//     })
+// }
 
 async function sendReportSummary(report) {
     if (process.env.SEND_GRAFANA_LINK) {

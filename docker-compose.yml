@@ -97,20 +97,21 @@ services:
       - /var/lib/docker/:/var/lib/docker:ro
       - /var/run/docker.sock:/var/run/docker.sock
   # Uncomment to use NewRelic monitoring agent. Need to add License Key to newrelic-infra.yml.
-  #  agent:
-  #    container_name: newrelic-infra
-  #    build:
-  #      context: .
-  #      dockerfile: newrelic-infra/newrelic-infra.dockerfile
-  #    cap_add:
-  #      - SYS_PTRACE
-  #    network_mode: host
-  #    pid: host
-  #    privileged: true
-  #    volumes:
-  #      - "/:/host:ro"
-  #      - "/var/run/docker.sock:/var/run/docker.sock"
-  #    restart: unless-stopped
+  agent:
+    container_name: newrelic-infra
+    build:
+      context: .
+      dockerfile: newrelic/newrelic-infra.dockerfile
+    cap_add:
+      - SYS_PTRACE
+    cgroup: host
+    network_mode: host
+    pid: host
+    privileged: true
+    volumes:
+      - "/:/host:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    restart: unless-stopped
   ## Uncomment to use DataDog monitoring agent. Need to add API Key to environment variable.  
   #  datadog:
   #    container_name: ddagent
@@ -131,26 +132,26 @@ services:
   #      - /proc/:/host/proc/:ro
   #      - /sys/fs/cgroup:/host/sys/fs/cgroup:ro
   #      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-  datadog:
-    container_name: datadog
-    image: gcr.io/datadoghq/agent:7
-    environment:
-      - DD_SITE=datadoghq.eu
-      - DD_API_KEY=37050083ce07bc89fcf12a3ff39acb44
-      - DD_USE_DOGSTATSD=true
-      - DD_DOGSTATSD_PORT=8125
-      - DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true
-    pid: "host"
-    ports:
-      - "8000:8125/udp"
-      - "8126:8126/tcp"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /proc/:/host/proc/:ro
-      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
-    links:
-      - jenkins
-      - influxdb
+  # datadog:
+  #   container_name: datadog
+  #   image: gcr.io/datadoghq/agent:7
+  #   environment:
+  #     - DD_SITE=datadoghq.eu
+  #     - DD_API_KEY=37050083ce07bc89fcf12a3ff39acb44
+  #     - DD_USE_DOGSTATSD=true
+  #     - DD_DOGSTATSD_PORT=8125
+  #     - DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true
+  #   pid: "host"
+  #   ports:
+  #     - "8000:8125/udp"
+  #     - "8126:8126/tcp"
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
+  #     - /proc/:/host/proc/:ro
+  #     - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+  #   links:
+  #     - jenkins
+  #     - influxdb
   lighthouse:
     container_name: lighthouse
     build: ./lighthouse

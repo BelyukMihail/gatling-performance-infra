@@ -1,6 +1,6 @@
 import fs from 'fs'
 import dotenv from 'dotenv'
-import * as Encryptor from 'encryptor-node'
+import Encryptor from 'encryptor-node'
 
 dotenv.config({ path: `${process.cwd()}/.env` })
 
