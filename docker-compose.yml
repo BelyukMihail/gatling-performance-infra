@@ -74,7 +74,7 @@ services:
     container_name: docker-dind
     privileged: true
     restart: always
-    
+
   lighthouse:
     container_name: lighthouse
     build: ./lighthouse
@@ -87,66 +87,67 @@ services:
     env_file:
       - ./lighthouse/.env
 
-#  gatling:
-#    container_name: gatling
-#    build: ./gatling
-#    image: "eclipse-temurin:8-jdk"
-#    privileged: true
-#     networks:
-#       - framework_net
-#    entrypoint:
-#      - cat
+  #  gatling:
+  #    container_name: gatling
+  #    build: ./gatling
+  #    image: "eclipse-temurin:8-jdk"
+  #    privileged: true
+  #     networks:
+  #       - framework_net
+  #    entrypoint:
+  #      - cat
 
-## Uncomment to use Prometheus host performance monitoring tool
-#  prometheus:
-#    image: prom/prometheus:latest
-#    container_name: prometheus
-#    restart: unless-stopped
-#    networks:
-#      - framework_net
-#    ports:
-#      - "9090:9090"
-#    volumes:
-#      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-#      - prometheus_data:/prometheus
-#    command:
-#      - '--config.file=/etc/prometheus/prometheus.yml'
-#      - '--storage.tsdb.path=/prometheus'
-#      - '--web.console.libraries=/etc/prometheus/console_libraries'
-#      - '--web.console.templates=/etc/prometheus/consoles'
-#      - '--web.enable-lifecycle'
-#    depends_on:
-#      - cadvisor
-#  cadvisor:
-#    image: gcr.io/cadvisor/cadvisor:v0.47.2
-#    container_name: cadvisor
-#    privileged: true
-#    networks:
-#      - framework_net
-#    ports:
-#      - "8010:8010"
-#    volumes:
-#      - /:/rootfs:ro
-#      - /var/run:/var/run:rw
-#      - /sys:/sys:ro
-#      - /var/lib/docker/:/var/lib/docker:ro
-#      - /var/run/docker.sock:/var/run/docker.sock
+  ## Uncomment to use Prometheus host performance monitoring tool
+  #  prometheus:
+  #    image: prom/prometheus:latest
+  #    container_name: prometheus
+  #    restart: unless-stopped
+  #    networks:
+  #      - framework_net
+  #    ports:
+  #      - "9090:9090"
+  #    volumes:
+  #      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+  #      - prometheus_data:/prometheus
+  #    command:
+  #      - '--config.file=/etc/prometheus/prometheus.yml'
+  #      - '--storage.tsdb.path=/prometheus'
+  #      - '--web.console.libraries=/etc/prometheus/console_libraries'
+  #      - '--web.console.templates=/etc/prometheus/consoles'
+  #      - '--web.enable-lifecycle'
+  #    depends_on:
+  #      - cadvisor
+  #  cadvisor:
+  #    image: gcr.io/cadvisor/cadvisor:v0.47.2
+  #    container_name: cadvisor
+  #    privileged: true
+  #    networks:
+  #      - framework_net
+  #    ports:
+  #      - "8010:8010"
+  #    volumes:
+  #      - /:/rootfs:ro
+  #      - /var/run:/var/run:rw
+  #      - /sys:/sys:ro
+  #      - /var/lib/docker/:/var/lib/docker:ro
+  #      - /var/run/docker.sock:/var/run/docker.sock
 
-## Uncomment to use NewRelic host performance monitoring agent. Need to add License Key to newrelic-infra.yml.
-#  agent:
-#    container_name: newrelic-infra
-#    build:
-#      context: .
-#      dockerfile: newrelic-infra/newrelic-infra.dockerfile
-#    cap_add:
-#      - SYS_PTRACE
-#    network_mode: host
-#    pid: host
-#    privileged: true
-#    volumes:
-#      - "/:/host:ro"
-#      - "/var/run/docker.sock:/var/run/docker.sock"
-#    restart: unless-stopped
+  ## Uncomment to use NewRelic host performance monitoring agent. Need to add License Key to newrelic-infra.yml.
+  newrelic:
+    container_name: newrelic-infra
+    build:
+      context: .
+      dockerfile: newrelic-infra/newrelic-infra.dockerfile
+    cap_add:
+      - SYS_PTRACE
+    network_mode: host
+    cgroup: host
+    pid: host
+    privileged: true
+    volumes:
+      - "/:/host:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    restart: unless-stopped
 
 ## Uncomment to use DataDog host performance monitoring agent. Need to add API Key to environment variable.
 #  datadog:
@@ -175,6 +176,7 @@ volumes:
   influxdb:
   prometheus_data: {}
   lighthouse:
+
 
 networks:
   framework_net:
