@@ -4,6 +4,7 @@ ENV JAVA_OPTS="-Djenkins.install.runSetupWizard=false -Dhudson.model.DirectoryBr
 COPY security.groovy /usr/share/jenkins/ref/init.groovy.d/security.groovy
 COPY configure-markup-formatter.groovy /usr/share/jenkins/ref/init.groovy.d/configure-markup-formatter.groovy
 COPY jobs/ /jobs/
+COPY agents/ /agents/
 COPY run.sh /run.sh
 COPY plugins.txt /usr/share/jenkins/ref/
 

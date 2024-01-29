@@ -37,11 +37,11 @@ You should be able to run ```docker run hello-world``` with no errors.
 All containers should be up and running
 
 ### Services endpoints
-- **jenkins** localhost:8181
-- **grafana** localhost:8857
-- **influxdb** localhost:8653
+- **jenkins** localhost:8080
+- **grafana** localhost:3000
+- **influxdb** localhost:8086
 - **prometheus** localhost:9091
-- **cadvisor** localhost:8081
+- **cadvisor** localhost:8010
 
 ## Jenkins
 
@@ -75,8 +75,7 @@ To run Gatling demo script:
 
 This job will start Gatling docker container and execute defined Gatling load simulation.
 
-You'll find default test reports inside **Gatling** tab in Jenkins job page: 
-http://localhost:8181/job/GatlingBackend/gatling/ 
+You'll find default test reports inside **Gatling** tab in Jenkins job page.
 
 Also you'll be able to retrieve real-time and post-run metrics on Grafana dashboard. 
 Runtime metrics link is available in job description as well as post-run link will be attached to every runs description on finish.

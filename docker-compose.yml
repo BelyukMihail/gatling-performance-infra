@@ -3,8 +3,10 @@ services:
   grafana:
     container_name: grafana
     image: grafana/grafana
+    networks:
+      - framework_net
     ports:
-      - "8857:3000"
+      - "3000:3000"
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_SECURITY_ADMIN_USER=admin
@@ -24,35 +26,26 @@ services:
     container_name: influxdb
     volumes:
       - influxdb:/var/lib/influxdb
+    networks:
+      - framework_net
     ports:
-      - "8653:8086"
+      - "8086:8086"
       - "2003:2003"
+      - "2004:2004"
       - "2005:2005"
     restart: always
-  docker-dind:
-    image: docker:dind
-    volumes:
-      - docker-dind:/usr/local/bin
-    container_name: docker-dind
-    privileged: true
-    restart: always
+
   jenkins:
-    image: jenkins/jenkins
     build: ./jenkins
     depends_on:
       - docker-dind
     container_name: jenkins
+    networks:
+      - framework_net
     ports:
-      - "8181:8080"
+      - "8080:8080"
       - "50000:50000"
     environment:
-      # JENKINS_URL_CONFIG variable is used to set jenkins_url variable in jenkins global configuration.
-      # This url will be used to create links to jenkins builds in grafana dashboards, default is http://127.0.0.1:8181/
-      # Slash '/' should be escaped with '\'
-      # - JENKINS_URL_CONFIG=http:\/\/127.0.0.1:8181\/
-      # JENKINS_GRAFANA_URL is used for generating link to grafana report in jenkins job description
-      # default value is 127.0.0.1:8857
-      # - JENKINS_GRAFANA_URL=127.0.0.1:8857
       - JENKINS_ADMIN_LOGIN=admin
       - JENKINS_ADMIN_PASSWORD=admin
     volumes:
@@ -60,113 +53,130 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - jenkins-home:/var/jenkins_home
     restart: always
-  gatling:
-    container_name: gatling
-    build: ./gatling
-    image: "eclipse-temurin:8-jdk"
-    privileged: true
-    entrypoint:
-      - cat
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
-    restart: unless-stopped
-    volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--web.enable-lifecycle'
-    ports:
-      - "9091:9090"
-    depends_on:
-      - cadvisor
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.47.2
-    container_name: cadvisor
+  jenkins-agent:
+    build: ./jenkins-agent
+    container_name: agent1
     privileged: true
     ports:
-      - "8081:8080"
+      - "22:22"
+    networks:
+      - framework_net
     volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:rw
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
       - /var/run/docker.sock:/var/run/docker.sock
-  # Uncomment to use NewRelic monitoring agent. Need to add License Key to newrelic-infra.yml.
-  agent:
-    container_name: newrelic-infra
-    build:
-      context: .
-      dockerfile: newrelic/newrelic-infra.dockerfile
-    cap_add:
-      - SYS_PTRACE
-    cgroup: host
-    network_mode: host
-    pid: host
-    privileged: true
+      - jenkins-agent-home:/home/jenkins
+
+  docker-dind:
+    image: docker:dind
+    networks:
+      - framework_net
     volumes:
-      - "/:/host:ro"
-      - "/var/run/docker.sock:/var/run/docker.sock"
-    restart: unless-stopped
-  ## Uncomment to use DataDog monitoring agent. Need to add API Key to environment variable.  
-  #  datadog:
-  #    container_name: ddagent
-  #    image: gcr.io/datadoghq/agent:latest
-  #    pid: host
-  #    privileged: true
-  #    environment:
-  #      - DD_API_KEY=<Edit_Key>
-  #      - DD_SITE=datadoghq.eu
-  #      - DD_LOGS_ENABLED=true
-  #      - DD_APM_ENABLED=true
-  #      - DD_APM_NON_LOCAL_TRAFFIC=true
-  #      - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
-  ##      - DD_APM_RECEIVER_SOCKET=/opt/datadog/apm/inject/run/apm.socket
-  #      - DD_DOGSTATSD_SOCKET=/opt/datadog/apm/inject/run/dsd.socket
-  #    volumes:
-  #      - /var/run/docker.sock:/var/run/docker.sock
-  #      - /proc/:/host/proc/:ro
-  #      - /sys/fs/cgroup:/host/sys/fs/cgroup:ro
-  #      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-  # datadog:
-  #   container_name: datadog
-  #   image: gcr.io/datadoghq/agent:7
-  #   environment:
-  #     - DD_SITE=datadoghq.eu
-  #     - DD_API_KEY=37050083ce07bc89fcf12a3ff39acb44
-  #     - DD_USE_DOGSTATSD=true
-  #     - DD_DOGSTATSD_PORT=8125
-  #     - DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true
-  #   pid: "host"
-  #   ports:
-  #     - "8000:8125/udp"
-  #     - "8126:8126/tcp"
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock:ro
-  #     - /proc/:/host/proc/:ro
-  #     - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
-  #   links:
-  #     - jenkins
-  #     - influxdb
+      - docker-dind:/usr/local/bin
+    container_name: docker-dind
+    privileged: true
+    restart: always
+    
   lighthouse:
     container_name: lighthouse
     build: ./lighthouse
+    networks:
+      - framework_net
     depends_on:
       - influxdb
     volumes:
       - lighthouse:/lighthouse/report
     env_file:
       - ./lighthouse/.env
+
+#  gatling:
+#    container_name: gatling
+#    build: ./gatling
+#    image: "eclipse-temurin:8-jdk"
+#    privileged: true
+#     networks:
+#       - framework_net
+#    entrypoint:
+#      - cat
+
+## Uncomment to use Prometheus host performance monitoring tool
+#  prometheus:
+#    image: prom/prometheus:latest
+#    container_name: prometheus
+#    restart: unless-stopped
+#    networks:
+#      - framework_net
+#    ports:
+#      - "9090:9090"
+#    volumes:
+#      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+#      - prometheus_data:/prometheus
+#    command:
+#      - '--config.file=/etc/prometheus/prometheus.yml'
+#      - '--storage.tsdb.path=/prometheus'
+#      - '--web.console.libraries=/etc/prometheus/console_libraries'
+#      - '--web.console.templates=/etc/prometheus/consoles'
+#      - '--web.enable-lifecycle'
+#    depends_on:
+#      - cadvisor
+#  cadvisor:
+#    image: gcr.io/cadvisor/cadvisor:v0.47.2
+#    container_name: cadvisor
+#    privileged: true
+#    networks:
+#      - framework_net
+#    ports:
+#      - "8010:8010"
+#    volumes:
+#      - /:/rootfs:ro
+#      - /var/run:/var/run:rw
+#      - /sys:/sys:ro
+#      - /var/lib/docker/:/var/lib/docker:ro
+#      - /var/run/docker.sock:/var/run/docker.sock
+
+## Uncomment to use NewRelic host performance monitoring agent. Need to add License Key to newrelic-infra.yml.
+#  agent:
+#    container_name: newrelic-infra
+#    build:
+#      context: .
+#      dockerfile: newrelic-infra/newrelic-infra.dockerfile
+#    cap_add:
+#      - SYS_PTRACE
+#    network_mode: host
+#    pid: host
+#    privileged: true
+#    volumes:
+#      - "/:/host:ro"
+#      - "/var/run/docker.sock:/var/run/docker.sock"
+#    restart: unless-stopped
+
+## Uncomment to use DataDog host performance monitoring agent. Need to add API Key to environment variable.
+#  datadog:
+#    container_name: ddagent
+#    image: gcr.io/datadoghq/agent:latest
+#    pid: host
+#    privileged: true
+#    environment:
+#      - DD_API_KEY=<Edit_Key>
+#      - DD_SITE=datadoghq.eu
+#      - DD_LOGS_ENABLED=true
+#      - DD_APM_ENABLED=true
+#      - DD_APM_NON_LOCAL_TRAFFIC=true
+#      - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
+#      - DD_DOGSTATSD_SOCKET=/opt/datadog/apm/inject/run/dsd.socket
+#    volumes:
+#      - /var/run/docker.sock:/var/run/docker.sock
+#      - /proc/:/host/proc/:ro
+#      - /sys/fs/cgroup:/host/sys/fs/cgroup:ro
+#      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+
 volumes:
   docker-dind:
   jenkins-home:
+  jenkins-agent-home:
   influxdb:
   prometheus_data: {}
   lighthouse:
-  nginx:
 
-
+networks:
+  framework_net:
+    name: framework_net
+    driver: bridge

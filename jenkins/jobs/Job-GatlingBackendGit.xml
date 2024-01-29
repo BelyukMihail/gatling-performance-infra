@@ -1,0 +1,106 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+    <actions/>
+    <description>Running gatling simulation from git with maven command.&#xd;
+        &lt;br/&gt;To watch simulation stats in runtime follow the link after job start:&#xd;
+        &lt;br/&gt;&lt;li&gt;&lt;a href=&apos;http://127.0.0.1:3000/d/gatling/gatling-report-metrics?from=now-5m&amp;refresh=5s&apos; target=&apos;_blank&apos;&gt;Runtime Grafana Report&lt;/a&gt;&lt;br/&gt;</description>
+    <keepDependencies>false</keepDependencies>
+    <properties>
+        <hudson.plugins.throttleconcurrents.ThrottleJobProperty plugin="throttle-concurrents@2.14">
+            <maxConcurrentPerNode>0</maxConcurrentPerNode>
+            <maxConcurrentTotal>0</maxConcurrentTotal>
+            <categories class="java.util.concurrent.CopyOnWriteArrayList"/>
+            <throttleEnabled>false</throttleEnabled>
+            <throttleOption>project</throttleOption>
+            <limitOneJobWithMatchingParams>false</limitOneJobWithMatchingParams>
+            <paramsToUseForLimit></paramsToUseForLimit>
+        </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
+        <hudson.model.ParametersDefinitionProperty>
+            <parameterDefinitions>
+                <hudson.model.StringParameterDefinition>
+                    <name>SIMULATION</name>
+                    <description>Name and path to simulation class.</description>
+                    <defaultValue>com.eshop.qa.simulation.NewParameterizedSimulation</defaultValue>
+                    <trim>false</trim>
+                </hudson.model.StringParameterDefinition>
+            </parameterDefinitions>
+        </hudson.model.ParametersDefinitionProperty>
+    </properties>
+    <scm class="hudson.plugins.git.GitSCM" plugin="git@5.2.1">
+        <configVersion>2</configVersion>
+        <userRemoteConfigs>
+            <hudson.plugins.git.UserRemoteConfig>
+                <url>https://github.com/sperftest/gatling-tests.git</url>
+                <credentialsId>sperftest</credentialsId>
+            </hudson.plugins.git.UserRemoteConfig>
+        </userRemoteConfigs>
+        <branches>
+            <hudson.plugins.git.BranchSpec>
+                <name>*/main</name>
+            </hudson.plugins.git.BranchSpec>
+        </branches>
+        <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+        <submoduleCfg class="empty-list"/>
+        <extensions/>
+    </scm>
+    <canRoam>true</canRoam>
+    <disabled>false</disabled>
+    <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+    <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+    <triggers/>
+    <concurrentBuild>false</concurrentBuild>
+    <builders>
+        <hudson.tasks.Maven>
+            <targets>clean
+                gatling:test
+                -DJENKINS_LOGIN=$BUILD_USER_ID -DBUILD_NUMBER=$BUILD_NUMBER -Dgatling.simulationClass=$SIMULATION</targets>
+            <mavenName>Maven</mavenName>
+            <usePrivateRepository>false</usePrivateRepository>
+            <settings class="jenkins.mvn.DefaultSettingsProvider"/>
+            <globalSettings class="jenkins.mvn.DefaultGlobalSettingsProvider"/>
+            <injectBuildVariables>false</injectBuildVariables>
+        </hudson.tasks.Maven>
+    </builders>
+    <publishers>
+        <org.jvnet.hudson.plugins.groovypostbuild.GroovyPostbuildRecorder plugin="groovy-postbuild@228.vcdb_cf7265066">
+            <script plugin="script-security@1313.v7a_6067dc7087">
+                <script>import hudson.model.*
+
+                    //get current build
+                    def build = Thread.currentThread().executable
+
+                    def grafana_url = System.getenv(&quot;JENKINS_GRAFANA_URL&quot;)
+
+                    if(!grafana_url){
+                    println &apos;JENKINS_GRAFANA_URL is not specified&apos;
+                    grafana_url = &quot;127.0.0.1:3000&quot;
+                    }
+
+                    // grafana url for aggregate dashboard - replace time stamp with %s
+                    def perfResult = &quot;http://%s/d/gatling/gatling-report-metrics?from=%s&amp;to=%s&quot;
+
+                    // get build start and end time
+                    def start = build.getStartTimeInMillis();
+                    def end = start + build.getExecutor().getElapsedTime();
+
+                    // replace time
+                    perfResult = String.format(perfResult, grafana_url, start, end);
+
+                    //build the string to be added as description.
+                    def link = &quot;&lt;a href=&apos;%s&apos; target=&apos;_blank&apos;&gt;%s&lt;/a&gt;&lt;br/&gt;&quot;;
+                    def sb = new StringBuilder();
+                    sb.append(String.format(link, perfResult, &quot;Grafana Performance Result&quot;))
+
+                    // set build description
+                    build.setDescription(sb.toString());</script>
+                <sandbox>false</sandbox>
+            </script>
+            <behavior>0</behavior>
+            <runForMatrixParent>false</runForMatrixParent>
+        </org.jvnet.hudson.plugins.groovypostbuild.GroovyPostbuildRecorder>
+        <io.gatling.jenkins.GatlingPublisher plugin="gatling@1.3.0">
+            <enabled>true</enabled>
+        </io.gatling.jenkins.GatlingPublisher>
+    </publishers>
+    <buildWrappers/>
+</project>

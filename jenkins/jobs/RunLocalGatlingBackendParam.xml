@@ -3,7 +3,7 @@
   <actions/>
   <description>Running gatling simulation from file with parameters.&#xd;
     &lt;br/&gt;To watch simulation stats in runtime follow the link after job start:&#xd;
-    &lt;br/&gt;&lt;li&gt;&lt;a href=&apos;http://127.0.0.1:8857/d/gatling/gatling-report-metrics?from=now-5m&amp;refresh=5s&apos; target=&apos;_blank&apos;&gt;Runtime Grafana Report&lt;/a&gt;&lt;br/&gt;</description>
+    &lt;br/&gt;&lt;li&gt;&lt;a href=&apos;http://127.0.0.1:3000/d/gatling/gatling-report-metrics?from=now-5m&amp;refresh=5s&apos; target=&apos;_blank&apos;&gt;Runtime Grafana Report&lt;/a&gt;&lt;br/&gt;</description>
   <keepDependencies>false</keepDependencies>
   <properties>
     <org.jenkinsci.plugins.compressbuildlog.BuildLogCompressor plugin="compress-buildlog@1.2"/>
@@ -70,7 +70,7 @@
 
           if(!grafana_url){
           println &apos;JENKINS_GRAFANA_URL is not specified&apos;
-          grafana_url = &quot;127.0.0.1:8857&quot;
+          grafana_url = &quot;127.0.0.1:3000&quot;
           }
 
           // grafana url for aggregate dashboard - replace time stamp with %s

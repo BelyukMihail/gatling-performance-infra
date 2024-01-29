@@ -8,7 +8,7 @@ import io.gatling.core.structure.ChainBuilder
 import java.time.LocalDateTime
 
 object DbClient {
-  val url = "http://localhost:8653"
+  val url = "http://localhost:8086"
   val username = "admin"
   val password = "admin"
   val database = "graphite"

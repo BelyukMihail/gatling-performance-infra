@@ -11,3 +11,5 @@ antisamy-markup-formatter:latest
 ssh-slaves:latest
 gatling:latest
 build-user-vars-plugin:latest
+maven-plugin:latest
+pipeline-model-definition:latest

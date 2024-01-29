@@ -1,0 +1,49 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@1385.vb_58b_86ea_fff1">
+    <actions>
+        <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobAction plugin="pipeline-model-definition@2.2168.vf921b_4e72c73"/>
+        <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction plugin="pipeline-model-definition@2.2168.vf921b_4e72c73">
+            <jobProperties/>
+            <triggers/>
+            <parameters/>
+            <options/>
+        </org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction>
+    </actions>
+    <description>Running gatling simulation from git.&#xd;
+        &lt;br/&gt;To watch simulation stats in runtime follow the link after job start:&#xd;
+        &lt;br/&gt;&lt;li&gt;&lt;a href=&apos;http://127.0.0.1:3000/d/gatling/gatling-report-metrics?from=now-5m&amp;refresh=5s&apos; target=&apos;_blank&apos;&gt;Runtime Grafana Report&lt;/a&gt;&lt;br/&gt;</description>
+    <keepDependencies>false</keepDependencies>
+    <properties>
+        <hudson.plugins.throttleconcurrents.ThrottleJobProperty plugin="throttle-concurrents@2.14">
+            <maxConcurrentPerNode>0</maxConcurrentPerNode>
+            <maxConcurrentTotal>0</maxConcurrentTotal>
+            <categories class="java.util.concurrent.CopyOnWriteArrayList"/>
+            <throttleEnabled>false</throttleEnabled>
+            <throttleOption>project</throttleOption>
+            <limitOneJobWithMatchingParams>false</limitOneJobWithMatchingParams>
+            <paramsToUseForLimit></paramsToUseForLimit>
+        </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
+    </properties>
+    <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@3837.v305192405b_c0">
+        <script>pipeline {
+            agent any
+
+            stages {
+            stage(&apos;Test&apos;) {
+            steps {
+            echo &apos;Hello&apos;
+
+            git branch: &apos;main&apos;, credentialsId: &apos;sperftest&apos;, url: &apos;https://github.com/sperftest/gatling-tests.git&apos;
+
+            echo &quot;Current build: ${currentBuild.number}&quot;
+
+            sh &quot;mvn clean -e gatling:test -DBUILD_NUMBER=${currentBuild.number} -Dgatling.simulationClass=com.eshop.qa.simulation.NewParameterizedSimulation&quot;
+            }
+            }
+            }
+            }</script>
+        <sandbox>true</sandbox>
+    </definition>
+    <triggers/>
+    <disabled>false</disabled>
+</flow-definition>
